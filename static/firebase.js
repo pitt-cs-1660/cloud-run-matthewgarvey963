@@ -120,7 +120,22 @@ async function vote(team) {
       /*
        * ++++ YOUR CODE HERE ++++
        */
-      window.alert(`Not implemented yet!`);
+      // Send vote to backend
+      const response = await fetch("/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Bearer ${token}`
+        },
+        body: `team=${encodeURIComponent(team)}`
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        window.alert("Vote submitted successfully!");
+      } else {
+        throw new Error(data.detail || "Unknown error");
+      }
 
     } catch (err) {
       console.log(`Error when submitting vote: ${err}`);

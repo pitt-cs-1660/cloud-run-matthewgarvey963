@@ -54,11 +54,20 @@
   </div>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      <!-- add Event Listener "click" to the vote -->
-      // document.getElementById("voteTabs").addEventListener("click", function () {
-      //   vote("TABS");
-      // });
-    })
+      // Sign-in button event listener
+      document.getElementById("signInButton").addEventListener("click", function () {
+        toggle();
+      });
+
+      // Vote button event listeners
+      document.getElementById("voteTabs").addEventListener("click", function () {
+        vote("TABS");
+      });
+
+      document.getElementById("voteSpaces").addEventListener("click", function () {
+        vote("SPACES");
+      });
+    });
   </script>
 </body>
 </html>

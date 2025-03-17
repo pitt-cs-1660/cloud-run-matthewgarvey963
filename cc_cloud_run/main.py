@@ -22,7 +22,25 @@ async def read_root(request: Request):
     # ++++ START CODE HERE ++++
     # ====================================
 
-    # stream all votes; count tabs / spaces votes, and get recent votes
+    # Fetch all votes from Firestore
+    votes = votes_collection.stream()
+
+    # Process vote counts and recent votes
+    tabs_count = 0
+    spaces_count = 0
+    recent_votes = []
+
+    for vote in votes:
+        vote_data = vote.to_dict()
+        if vote_data.get("team") == "TABS":
+            tabs_count += 1
+        elif vote_data.get("team") == "SPACES":
+            spaces_count += 1
+
+        # Store recent votes (limit to last 10)
+        recent_votes.append(vote_data)
+    
+    recent_votes = sorted(recent_votes, key=lambda v: v.get("time_cast", ""), reverse=True)[:10]
 
     # ====================================
     # ++++ STOP CODE ++++
@@ -44,8 +62,14 @@ async def create_vote(team: Annotated[str, Form()]):
     # ++++ START CODE HERE ++++
     # ====================================
 
-    # create a new vote document in firestore
-    return {"detail": "Not implemented yet!"}
+    # Add the vote to Firestore
+    vote_data = {
+        "team": team,
+        "time_cast": datetime.datetime.now(datetime.timezone.utc).isoformat()
+    }
+    votes_collection.add(vote_data)
+
+    return {"detail": "Vote recorded successfully!"}
 
     # ====================================
     # ++++ STOP CODE ++++
