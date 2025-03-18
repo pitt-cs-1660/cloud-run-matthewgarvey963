@@ -65,7 +65,7 @@ async def create_vote(team: Annotated[str, Form()]):
     # Add the vote to Firestore
     vote_data = {
         "team": team,
-        "time_cast": datetime.datetime.now(datetime.timezone.utc).isoformat()
+        "time_cast": datetime.datetime.utcnow().isoformat()
     }
     votes_collection.add(vote_data)
 
