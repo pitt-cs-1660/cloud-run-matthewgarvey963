@@ -29,14 +29,14 @@
       <div class="col s6 m5 offset-m1">
         <div class="{% if lead_team == 'TABS' %}card-panel teal lighten-4{% else %}card-panel{% endif %}">
           <i class="material-icons large">》</i>
-          <h3>{{tabs_count}} votes</h3>
+          <h3><span id="tabs-count">{{ tabs_count }}</span> votes</h3>
           <button class="btn" id="voteTabs">Vote for TABS</button>
         </div>
       </div>
       <div class="col s6 m5">
         <div class="{% if lead_team == 'SPACES' %}card-panel teal lighten-4{% else %}card-panel{% endif %}">
           <i class="material-icons large">⎵</i>
-          <h3>{{spaces_count}} votes</h3>
+          <h3><span id="spaces-count">{{ spaces_count }}</span> votes</h3>
           <button class="btn" id="voteSpaces">Vote for SPACES</button>
         </div>
       </div>
