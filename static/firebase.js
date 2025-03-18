@@ -161,12 +161,12 @@ async function updateVoteCounts() {
     const doc = parser.parseFromString(text, "text/html");
 
     // Extract updated counts from the newly fetched HTML
-    const updatedTabsCount = doc.getElementById("tabs_count").innerText;
-    const updatedSpacesCount = doc.getElementById("spaces_count").innerText;
+    const updatedTabsCount = doc.getElementById("tabs-count").innerText;
+    const updatedSpacesCount = doc.getElementById("spaces-count").innerText;
 
     // Update the UI dynamically without refreshing the page
-    document.getElementById("tabs_count").innerText = updatedTabsCount;
-    document.getElementById("spaces_count").innerText = updatedSpacesCount;
+    document.getElementById("tabs-count").innerText = updatedTabsCount;
+    document.getElementById("spaces-count").innerText = updatedSpacesCount;
   } catch (err) {
     console.error("Failed to update vote counts:", err);
   }
