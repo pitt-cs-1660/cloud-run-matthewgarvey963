@@ -153,20 +153,16 @@ async function vote(team) {
  */
 async function updateVoteCounts() {
   try {
-    const response = await fetch("/");  // Fetch the updated vote data
-    const text = await response.text(); // Get the HTML response
+    const response = await fetch("/vote-counts");  // Fetch the latest counts from new endpoint
+    if (!response.ok) {
+      throw new Error("Failed to fetch updated vote counts.");
+    }
 
-    // Create a temporary DOM parser to extract the updated counts
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, "text/html");
+    const data = await response.json();
 
-    // Extract updated counts from the newly fetched HTML
-    const updatedTabsCount = doc.getElementById("tabs-count").innerText;
-    const updatedSpacesCount = doc.getElementById("spaces-count").innerText;
-
-    // Update the UI dynamically without refreshing the page
-    document.getElementById("tabs-count").innerText = updatedTabsCount;
-    document.getElementById("spaces-count").innerText = updatedSpacesCount;
+    // Update UI with new counts
+    document.getElementById("tabs-count").innerText = data.tabs_count;
+    document.getElementById("spaces-count").innerText = data.spaces_count;
   } catch (err) {
     console.error("Failed to update vote counts:", err);
   }
