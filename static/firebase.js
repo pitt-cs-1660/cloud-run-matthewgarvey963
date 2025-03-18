@@ -180,6 +180,9 @@ async function updateRecentVotes() {
 
     const recentVotes = await response.json();
 
+    // Debugging: Print what the frontend receives
+    console.log("DEBUG: Recent votes received:", recentVotes);
+
     // Get the container for recent votes
     const recentVotesContainer = document.getElementById("recent-votes");
 
@@ -188,9 +191,14 @@ async function updateRecentVotes() {
 
     // Populate with new votes
     recentVotes.forEach(vote => {
-      const voteElement = document.createElement("li");
-      const timeCast = new Date(vote.time_cast).toLocaleString();
-      voteElement.textContent = `${vote.team} voted at ${timeCast}`;
+      console.log(`DEBUG: Processing vote ->`, vote); // Print each vote entry
+      
+      // Handle missing fields safely
+      const user = vote.user || "Anonymous";
+      const team = vote.team || "Unknown Team";
+      const timeCast = vote.time_cast ? new Date(vote.time_cast).toLocaleString() : "Unknown time";
+
+      voteElement.textContent = `${user} voted for ${team} at ${timeCast}`;
       recentVotesContainer.appendChild(voteElement);
     });
   } catch (err) {
