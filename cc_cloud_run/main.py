@@ -62,10 +62,23 @@ async def create_vote(team: Annotated[str, Form()]):
     # ++++ START CODE HERE ++++
     # ====================================
 
-    # Add the vote to Firestore
+    # Extract user info from Firebase Auth (if available)
+    user_name = "Anonymous"  # Default if user info is missing
+    auth_header = request.headers.get("Authorization")
+
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split("Bearer ")[1]
+        try:
+            decoded_token = auth.verify_id_token(token)
+            user_name = decoded_token.get("name", "Unknown User")  # Extract display name
+        except Exception as e:
+            print(f"DEBUG: Failed to decode token - {e}")
+
+    # Store the vote in Firestore with the user's name
     vote_data = {
         "team": team,
-        "time_cast": datetime.datetime.utcnow().isoformat()
+        "user": user_name,  # 🔹 Store the user’s name
+        "time_cast": datetime.datetime.utcnow().isoformat()  # Use ISO format for timestamps
     }
     votes_collection.add(vote_data)
 
