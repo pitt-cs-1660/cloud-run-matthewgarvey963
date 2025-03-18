@@ -133,6 +133,8 @@ async function vote(team) {
       const data = await response.json();
       if (response.ok) {
         window.alert("Vote submitted successfully!");
+        // Call function to update the UI with new vote counts
+        await updateVoteCounts();
       } else {
         throw new Error(data.detail || "Unknown error");
       }
@@ -143,5 +145,29 @@ async function vote(team) {
     }
   } else {
     window.alert('User not signed in.');
+  }
+}
+
+/**
+ * Fetches the updated vote counts from the backend and updates the UI dynamically.
+ */
+async function updateVoteCounts() {
+  try {
+    const response = await fetch("/");  // Fetch the updated vote data
+    const text = await response.text(); // Get the HTML response
+
+    // Create a temporary DOM parser to extract the updated counts
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, "text/html");
+
+    // Extract updated counts from the newly fetched HTML
+    const updatedTabsCount = doc.getElementById("tabs-count").innerText;
+    const updatedSpacesCount = doc.getElementById("spaces-count").innerText;
+
+    // Update the UI dynamically without refreshing the page
+    document.getElementById("tabs-count").innerText = updatedTabsCount;
+    document.getElementById("spaces-count").innerText = updatedSpacesCount;
+  } catch (err) {
+    console.error("Failed to update vote counts:", err);
   }
 }
