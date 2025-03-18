@@ -167,3 +167,33 @@ async function updateVoteCounts() {
     console.error("Failed to update vote counts:", err);
   }
 }
+
+/**
+ * Fetches the most recent votes from the backend and updates the UI.
+ */
+async function updateRecentVotes() {
+  try {
+    const response = await fetch("/recent-votes");
+    if (!response.ok) {
+      throw new Error("Failed to fetch recent votes.");
+    }
+
+    const recentVotes = await response.json();
+
+    // Get the container for recent votes
+    const recentVotesContainer = document.getElementById("recent-votes");
+
+    // Clear existing votes
+    recentVotesContainer.innerHTML = "";
+
+    // Populate with new votes
+    recentVotes.forEach(vote => {
+      const voteElement = document.createElement("li");
+      const timeCast = new Date(vote.time_cast).toLocaleString();
+      voteElement.textContent = `${vote.team} voted at ${timeCast}`;
+      recentVotesContainer.appendChild(voteElement);
+    });
+  } catch (err) {
+    console.error("Error updating recent votes:", err);
+  }
+}
