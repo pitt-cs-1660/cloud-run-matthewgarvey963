@@ -133,8 +133,6 @@ async function vote(team) {
       const data = await response.json();
       if (response.ok) {
         window.alert("Vote submitted successfully!");
-        // Call function to update the UI with new vote counts
-        await updateVoteCounts();
       } else {
         throw new Error(data.detail || "Unknown error");
       }
@@ -145,63 +143,5 @@ async function vote(team) {
     }
   } else {
     window.alert('User not signed in.');
-  }
-}
-
-/**
- * Fetches the updated vote counts from the backend and updates the UI dynamically.
- */
-async function updateVoteCounts() {
-  try {
-    const response = await fetch("/vote-counts");  // Fetch the latest counts from new endpoint
-    if (!response.ok) {
-      throw new Error("Failed to fetch updated vote counts.");
-    }
-
-    const data = await response.json();
-
-    // Update UI with new counts
-    document.getElementById("tabs-count").innerText = data.tabs_count;
-    document.getElementById("spaces-count").innerText = data.spaces_count;
-  } catch (err) {
-    console.error("Failed to update vote counts:", err);
-  }
-}
-
-/**
- * Fetches the most recent votes from the backend and updates the UI.
- */
-async function updateRecentVotes() {
-  try {
-    const response = await fetch("/recent-votes");
-    if (!response.ok) {
-      throw new Error("Failed to fetch recent votes.");
-    }
-
-    const recentVotes = await response.json();
-
-    // Debugging: Print what the frontend receives
-    console.log("DEBUG: Recent votes received:", recentVotes);
-
-    // Get the container for recent votes
-    const recentVotesContainer = document.getElementById("recent-votes");
-
-    // Clear existing votes
-    recentVotesContainer.innerHTML = "";
-
-    // Populate with new votes
-    recentVotes.forEach(vote => {
-      console.log(`DEBUG: Processing vote ->`, vote); // Print each vote entry
-      
-      // Handle missing fields safely
-      const user = vote.user || "Anonymous";
-      const team = vote.team || "Unknown Team";
-      const timeCast = vote.time_cast ? new Date(vote.time_cast).toLocaleString() : "Unknown time";
-
-      voteElement.textContent = `${user} voted for ${team} at ${timeCast}`;
-      recentVotesContainer.appendChild(voteElement);
-    });
-  } catch (err) {
-    console.error("Error updating recent votes:", err);
   }
 }

@@ -62,33 +62,14 @@ async def create_vote(team: Annotated[str, Form()]):
     # ++++ START CODE HERE ++++
     # ====================================
 
-    try:
-        # Extract user info
-        user_name = "Anonymous"
-        auth_header = request.headers.get("Authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            token = auth_header.split("Bearer ")[1]
-            decoded_token = auth.verify_id_token(token)
-            user_name = decoded_token.get("name", "Unknown User")
+    # Add the vote to Firestore
+    vote_data = {
+        "team": team,
+        "time_cast": datetime.datetime.utcnow().isoformat()
+    }
+    votes_collection.add(vote_data)
 
-        # Create vote data
-        vote_data = {
-            "team": team,
-            "user": user_name,
-            "time_cast": datetime.datetime.utcnow().isoformat()
-        }
-
-        # Debugging: Print vote data before storing
-        print(f"DEBUG: Storing vote -> {vote_data}")
-
-        # Store in Firestore
-        votes_collection.add(vote_data)
-
-        return JSONResponse(content={"detail": "Vote recorded successfully!"})
-    
-    except Exception as e:
-        print(f"ERROR: {e}")  # Log the actual error
-        return JSONResponse(content={"detail": "Internal Server Error"}, status_code=500)
+    return {"detail": "Vote recorded successfully!"}
 
     # ====================================
     # ++++ STOP CODE ++++
