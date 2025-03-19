@@ -62,27 +62,33 @@ async def create_vote(team: Annotated[str, Form()]):
     # ++++ START CODE HERE ++++
     # ====================================
 
-    # Extract user info from Firebase Auth (if available)
-    user_name = "Anonymous"  # Default if user info is missing
-    auth_header = request.headers.get("Authorization")
-
-    if auth_header and auth_header.startswith("Bearer "):
-        token = auth_header.split("Bearer ")[1]
-        try:
+    try:
+        # Extract user info
+        user_name = "Anonymous"
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split("Bearer ")[1]
             decoded_token = auth.verify_id_token(token)
-            user_name = decoded_token.get("name", "Unknown User")  # Extract display name
-        except Exception as e:
-            print(f"DEBUG: Failed to decode token - {e}")
+            user_name = decoded_token.get("name", "Unknown User")
 
-    # Store the vote in Firestore with the user's name
-    vote_data = {
-        "team": team,
-        "user": user_name,  # 🔹 Store the user’s name
-        "time_cast": datetime.datetime.utcnow().isoformat()  # Use ISO format for timestamps
-    }
-    votes_collection.add(vote_data)
+        # Create vote data
+        vote_data = {
+            "team": team,
+            "user": user_name,
+            "time_cast": datetime.datetime.utcnow().isoformat()
+        }
 
-    return {"detail": "Vote recorded successfully!"}
+        # Debugging: Print vote data before storing
+        print(f"DEBUG: Storing vote -> {vote_data}")
+
+        # Store in Firestore
+        votes_collection.add(vote_data)
+
+        return JSONResponse(content={"detail": "Vote recorded successfully!"})
+    
+    except Exception as e:
+        print(f"ERROR: {e}")  # Log the actual error
+        return JSONResponse(content={"detail": "Internal Server Error"}, status_code=500)
 
     # ====================================
     # ++++ STOP CODE ++++
