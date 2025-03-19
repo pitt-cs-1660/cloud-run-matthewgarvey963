@@ -132,6 +132,23 @@ async function vote(team) {
 
       const data = await response.json();
       if (response.ok) {
+        // Parse the latest vote count from the backend
+        const updatedData = await response.json();
+
+        // Update the vote count on the page
+        document.getElementById("tabsCount").innerText = updatedData.tabs_count;
+        document.getElementById("spacesCount").innerText = updatedData.spaces_count;
+
+        // Update the recent votes section
+        const recentVotesList = document.getElementById("recentVotes");
+        recentVotesList.innerHTML = ""; // Clear existing votes
+
+        updatedData.recent_votes.forEach(vote => {
+          const li = document.createElement("li");
+          li.innerText = `${vote.team} - ${new Date(vote.time_cast).toLocaleString()}`;
+          recentVotesList.appendChild(li);
+        });
+
         window.alert("Vote submitted successfully!");
       } else {
         throw new Error(data.detail || "Unknown error");
