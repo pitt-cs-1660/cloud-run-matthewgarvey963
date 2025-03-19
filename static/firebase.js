@@ -134,6 +134,7 @@ async function vote(team) {
         // Vote successfully recorded, now fetch the latest results
         await fetchAndUpdateUI();
 
+        // window.alert("Vote submitted successfully!");
         window.location.reload(); // is this legal
       } else {
         throw new Error(data.detail || "Unknown error");
