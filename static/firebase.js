@@ -136,6 +136,7 @@ async function vote(team) {
 
         // Now show the alert
         window.alert("Vote submitted successfully!");
+        window.location.reload(); // is this legal
       } else {
         throw new Error(data.detail || "Unknown error");
       }
