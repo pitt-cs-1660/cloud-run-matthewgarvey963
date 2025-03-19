@@ -49,7 +49,7 @@ async def read_root(request: Request):
         "request": request,
         "tabs_count": tabs_count,
         "spaces_count": spaces_count,
-        "recent_votes": vote_data
+        "recent_votes": recent_votes
     })
 
 
@@ -69,7 +69,20 @@ async def create_vote(team: Annotated[str, Form()]):
     }
     votes_collection.add(vote_data)
 
-    return {"detail": "Vote recorded successfully!"}
+    # Fetch updated counts
+    votes = votes_collection.stream()
+    tabs_count = sum(1 for v in votes if v.to_dict().get("team") == "TABS")
+    spaces_count = sum(1 for v in votes if v.to_dict().get("team") == "SPACES")
+
+    # Fetch updated recent votes
+    recent_votes = [v.to_dict() for v in votes_collection.order_by("time_cast", direction=firestore.Query.DESCENDING).limit(10).stream()]
+
+    return {
+        "detail": "Vote recorded successfully!",
+        "tabs_count": tabs_count,
+        "spaces_count": spaces_count,
+        "recent_votes": recent_votes
+    }
 
     # ====================================
     # ++++ STOP CODE ++++
