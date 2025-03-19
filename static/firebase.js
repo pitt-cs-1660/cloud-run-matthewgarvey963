@@ -131,26 +131,11 @@ async function vote(team) {
       });
 
       if (response.ok) {
-        // Parse the latest vote count from the backend
-        const data = await response.json();
+        // Vote successfully recorded, now fetch the latest results
+        await fetchAndUpdateUI();
 
-        // Update the vote count on the page
-        document.getElementById("tabsCount").innerText = data.tabs_count;
-        document.getElementById("spacesCount").innerText = data.spaces_count;
-
-        // Update the recent votes section
-        const recentVotesList = document.getElementById("recentVotes");
-        recentVotesList.innerHTML = ""; // Clear existing votes
-
-        data.recent_votes.forEach(vote => {
-          const li = document.createElement("li");
-          li.innerText = `${vote.team} - ${new Date(vote.time_cast).toLocaleString()}`;
-          recentVotesList.appendChild(li);
-        });
-
-        setTimeout(() => {
-          window.alert("Vote submitted successfully!");
-        }, 100); // Set timeout to allow UI to update
+        // Now show the alert
+        window.alert("Vote submitted successfully!");
       } else {
         throw new Error(data.detail || "Unknown error");
       }
@@ -161,5 +146,32 @@ async function vote(team) {
     }
   } else {
     window.alert('User not signed in.');
+  }
+}
+
+/**
+ * Fetch latest vote counts and update the UI.
+ */
+async function fetchAndUpdateUI() {
+  try {
+      const response = await fetch("/"); // Fetch the latest state from the server
+      if (!response.ok) throw new Error("Failed to fetch updated data");
+
+      const data = await response.text(); // Get HTML response
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(data, "text/html");
+
+      // Extract latest values from the refreshed HTML
+      const newTabsCount = doc.getElementById("tabsCount").innerText;
+      const newSpacesCount = doc.getElementById("spacesCount").innerText;
+      const newRecentVotes = doc.getElementById("recentVotes").innerHTML;
+
+      // Update the UI immediately with fresh data
+      document.getElementById("tabsCount").innerText = newTabsCount;
+      document.getElementById("spacesCount").innerText = newSpacesCount;
+      document.getElementById("recentVotes").innerHTML = newRecentVotes;
+
+  } catch (err) {
+      console.log(`Error fetching updated UI: ${err}`);
   }
 }
