@@ -130,26 +130,27 @@ async function vote(team) {
         body: `team=${encodeURIComponent(team)}`
       });
 
-      const data = await response.json();
       if (response.ok) {
         // Parse the latest vote count from the backend
-        const updatedData = await response.json();
+        const data = await response.json();
 
         // Update the vote count on the page
-        document.getElementById("tabsCount").innerText = updatedData.tabs_count;
-        document.getElementById("spacesCount").innerText = updatedData.spaces_count;
+        document.getElementById("tabsCount").innerText = data.tabs_count;
+        document.getElementById("spacesCount").innerText = data.spaces_count;
 
         // Update the recent votes section
         const recentVotesList = document.getElementById("recentVotes");
         recentVotesList.innerHTML = ""; // Clear existing votes
 
-        updatedData.recent_votes.forEach(vote => {
+        data.recent_votes.forEach(vote => {
           const li = document.createElement("li");
           li.innerText = `${vote.team} - ${new Date(vote.time_cast).toLocaleString()}`;
           recentVotesList.appendChild(li);
         });
 
-        window.alert("Vote submitted successfully!");
+        setTimeout(() => {
+          window.alert("Vote submitted successfully!");
+        }, 100); // Set timeout to allow UI to update
       } else {
         throw new Error(data.detail || "Unknown error");
       }
