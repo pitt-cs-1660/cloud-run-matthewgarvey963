@@ -22,16 +22,34 @@ async def read_root(request: Request):
     # ++++ START CODE HERE ++++
     # ====================================
 
-    # stream all votes; count tabs / spaces votes, and get recent votes
+    # Fetch all votes from Firestore
+    votes = votes_collection.stream()
+
+    # Process vote counts and recent votes
+    tabs_count = 0
+    spaces_count = 0
+    recent_votes = []
+
+    for vote in votes:
+        vote_data = vote.to_dict()
+        if vote_data.get("team") == "TABS":
+            tabs_count += 1
+        elif vote_data.get("team") == "SPACES":
+            spaces_count += 1
+
+        # Store recent votes (limit to last 10)
+        recent_votes.append(vote_data)
+    
+    recent_votes = sorted(recent_votes, key=lambda v: v.get("time_cast", ""), reverse=True)[:10]
 
     # ====================================
     # ++++ STOP CODE ++++
     # ====================================
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "tabs_count": 0,
-        "spaces_count": 0,
-        "recent_votes": []
+        "tabs_count": tabs_count,
+        "spaces_count": spaces_count,
+        "recent_votes": recent_votes
     })
 
 
@@ -44,8 +62,27 @@ async def create_vote(team: Annotated[str, Form()]):
     # ++++ START CODE HERE ++++
     # ====================================
 
-    # create a new vote document in firestore
-    return {"detail": "Not implemented yet!"}
+    # Add the vote to Firestore
+    vote_data = {
+        "team": team,
+        "time_cast": datetime.datetime.utcnow().isoformat()
+    }
+    votes_collection.add(vote_data)
+
+    # Fetch updated counts
+    votes = votes_collection.stream()
+    tabs_count = sum(1 for v in votes if v.to_dict().get("team") == "TABS")
+    spaces_count = sum(1 for v in votes if v.to_dict().get("team") == "SPACES")
+
+    # Fetch updated recent votes
+    recent_votes = [v.to_dict() for v in votes_collection.order_by("time_cast", direction=firestore.Query.DESCENDING).limit(10).stream()]
+
+    return {
+        "detail": "Vote recorded successfully!",
+        "tabs_count": tabs_count,
+        "spaces_count": spaces_count,
+        "recent_votes": recent_votes
+    }
 
     # ====================================
     # ++++ STOP CODE ++++

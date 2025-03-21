@@ -120,7 +120,26 @@ async function vote(team) {
       /*
        * ++++ YOUR CODE HERE ++++
        */
-      window.alert(`Not implemented yet!`);
+      // Send vote to backend
+      const response = await fetch("/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Bearer ${token}`
+        },
+        body: `team=${encodeURIComponent(team)}`
+      });
+
+      if (response.ok) {
+        // Vote successfully recorded, now fetch the latest results
+        await fetchAndUpdateUI();
+
+        if(!window.alert("Vote submitted successfully!")){
+          window.location.reload(); // is this legal
+        }
+      } else {
+        throw new Error(data.detail || "Unknown error");
+      }
 
     } catch (err) {
       console.log(`Error when submitting vote: ${err}`);
@@ -128,5 +147,32 @@ async function vote(team) {
     }
   } else {
     window.alert('User not signed in.');
+  }
+}
+
+/**
+ * Fetch latest vote counts and update the UI.
+ */
+async function fetchAndUpdateUI() {
+  try {
+      const response = await fetch("/"); // Fetch the latest state from the server
+      if (!response.ok) throw new Error("Failed to fetch updated data");
+
+      const data = await response.text(); // Get HTML response
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(data, "text/html");
+
+      // Extract latest values from the refreshed HTML
+      const newTabsCount = doc.getElementById("tabsCount").innerText;
+      const newSpacesCount = doc.getElementById("spacesCount").innerText;
+      const newRecentVotes = doc.getElementById("recentVotes").innerHTML;
+
+      // Update the UI immediately with fresh data
+      document.getElementById("tabsCount").innerText = newTabsCount;
+      document.getElementById("spacesCount").innerText = newSpacesCount;
+      document.getElementById("recentVotes").innerHTML = newRecentVotes;
+
+  } catch (err) {
+      console.log(`Error fetching updated UI: ${err}`);
   }
 }
